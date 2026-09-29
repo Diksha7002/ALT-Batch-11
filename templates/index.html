@@ -1,0 +1,748 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>EmotionAI — Deep Neural & Pragmatic Emotion Intelligence</title>
+    <!-- Google Fonts -->
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link
+        href="https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@300;400;500;600;700;800&family=Space+Grotesk:wght@500;600;700;800&family=JetBrains+Mono:wght@400;500;600&display=swap"
+        rel="stylesheet">
+    <!-- Stylesheet -->
+    <link rel="stylesheet" href="{{ url_for('static', filename='style.css') }}">
+</head>
+
+<body class="state-input" data-theme="neutral">
+
+    <!-- Ambient Moving Auroras -->
+    <div class="aurora-wrapper">
+        <div class="aurora aurora-1" id="aurora1"></div>
+        <div class="aurora aurora-2" id="aurora2"></div>
+        <div class="grid-backdrop"></div>
+    </div>
+
+    <!-- Noise Overlay -->
+    <div class="noise-overlay"></div>
+
+    <div class="app-container">
+        <!-- HEADER -->
+        <header class="app-header">
+            <div class="brand">
+                <div class="brand-icon-wrapper">
+                    <svg class="logo-icon" width="24" height="24" viewBox="0 0 24 24" fill="none"
+                        xmlns="http://www.w3.org/2000/svg">
+                        <path
+                            d="M12 2C6.48 2 2 6.48 2 12C2 17.52 6.48 22 12 22C17.52 22 22 17.52 22 12C22 6.48 17.52 2 12 2ZM12 20C7.59 20 4 16.41 4 12C4 7.59 7.59 4 12 4C16.41 4 20 7.59 20 12C20 16.41 16.41 20 12 20ZM15.5 13.5C14.8 14.7 13.5 15.5 12 15.5C10.5 15.5 9.2 14.7 8.5 13.5C8.3 13.2 8.4 12.8 8.7 12.6C9.0 12.4 9.4 12.5 9.6 12.8C10.1 13.6 11.0 14 12.0 14C13.0 14 13.9 13.6 14.4 12.8C14.6 12.5 15.0 12.4 15.3 12.6C15.6 12.8 15.7 13.2 15.5 13.5ZM9 10.5C9.8 10.5 10.5 9.8 10.5 9C10.5 8.2 9.8 7.5 9 7.5C8.2 7.5 7.5 8.2 7.5 9C7.5 9.8 8.2 10.5 9 10.5ZM15 10.5C15.8 10.5 16.5 9.8 16.5 9C16.5 8.2 15.8 7.5 15 7.5C14.2 7.5 13.5 8.2 13.5 9C13.5 9.8 14.2 10.5 15 10.5Z"
+                            fill="url(#brandGrad)" />
+                        <defs>
+                            <linearGradient id="brandGrad" x1="2" y1="2" x2="22" y2="22" gradientUnits="userSpaceOnUse">
+                                <stop offset="0%" stop-color="#c084fc" />
+                                <stop offset="100%" stop-color="#38bdf8" />
+                            </linearGradient>
+                        </defs>
+                    </svg>
+                </div>
+                <div>
+                    <span class="brand-name">EmotionAI <span class="badge-pro">PRO</span></span>
+                    <span class="brand-sub">Neural Pragmatics & 28-D Taxonomy</span>
+                </div>
+            </div>
+
+            <div class="header-right">
+                <div class="system-status">
+                    <span class="status-indicator"></span>
+                    <span class="status-label">Pragmatic RoBERTa Active</span>
+                </div>
+            </div>
+        </header>
+
+        <main class="workspace">
+
+            <!-- ======================================================== -->
+            <!-- SECTION 1: HERO & INPUT PANEL -->
+            <!-- ======================================================== -->
+            <section class="panel input-panel" id="inputPanel">
+                <div class="hero-container">
+                    <div class="hero-badge">
+                        <span class="hero-badge-dot"></span>
+                        <span>Multi-Label Transformer with Pragmatic Context Disambiguation</span>
+                    </div>
+                    <h1 class="hero-title">
+                        Decode Direct & <span class="highlight-text">Indirect Emotions</span>
+                    </h1>
+                    <p class="hero-subtitle">
+                        Advanced NLP architecture trained on 28 fine-grained emotions, enhanced with contextual sarcasm detection, idiom deciphering, and pragmatic tone analysis.
+                    </p>
+                </div>
+
+                <!-- MAIN TEXT INPUT CARD -->
+                <div class="interactive-card editor-card">
+                    <div class="card-header">
+                        <div class="header-tag">
+                            <span class="pulse-dot"></span>
+                            <span class="panel-meta">INPUT SENTENCE</span>
+                        </div>
+                        <div class="header-actions">
+                            <span class="char-limit" id="charCounter">0 / 500</span>
+                        </div>
+                    </div>
+
+                    <div class="textarea-wrapper">
+                        <textarea id="rawTextInput" maxlength="500" placeholder="Type or paste any sentence (direct, sarcastic, idiomatic, or subtle)..."
+                            oninput="updateCharCount()"></textarea>
+                    </div>
+
+                    <div class="card-actions">
+                        <div class="card-actions-left">
+                            <button id="clearInputBtn" class="action-btn text-btn" onclick="resetEditor()">
+                                <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M18 6L6 18M6 6l12 12"/></svg>
+                                Clear
+                            </button>
+                        </div>
+                        <div class="card-actions-right">
+                            <button id="submitBtn" class="action-btn primary-btn" onclick="executeInference()">
+                                <span>Analyze Emotion</span>
+                                <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><path d="M5 12h14M12 5l7 7-7 7"/></svg>
+                            </button>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- CATEGORIZED PRESET TABS & EXAMPLES -->
+                <div class="presets-container">
+                    <div class="presets-header">
+                        <span class="presets-heading">EXPLORE INDIRECT & NUANCED SENTENCES</span>
+                        <div class="preset-tabs" id="presetTabs">
+                            <button class="preset-tab active" onclick="switchPresetCategory('sarcasm', this)">🎭 Sarcasm & Irony</button>
+                            <button class="preset-tab" onclick="switchPresetCategory('idioms', this)">🧩 Idioms & Figurative</button>
+                            <button class="preset-tab" onclick="switchPresetCategory('subtle', this)">🤫 Passive & Subtle</button>
+                            <button class="preset-tab" onclick="switchPresetCategory('direct', this)">⚡ Direct Expressions</button>
+                        </div>
+                    </div>
+
+                    <div class="presets-list" id="presetsList">
+                        <!-- Populated by JavaScript -->
+                    </div>
+                </div>
+
+                <!-- RECENT ANALYSES DRAWER -->
+                <div class="history-container" id="historyContainer" style="display: none;">
+                    <span class="presets-heading">RECENT QUERIES IN THIS SESSION</span>
+                    <div class="history-list" id="historyList"></div>
+                </div>
+
+            </section>
+
+            <!-- ======================================================== -->
+            <!-- SECTION 2: LOADING PROGRESS STATE -->
+            <!-- ======================================================== -->
+            <section class="panel loading-panel" id="loadingPanel" style="display: none;">
+                <div class="loading-center">
+                    <div class="progress-ring">
+                        <svg width="90" height="90">
+                            <circle class="ring-track" cx="45" cy="45" r="38"></circle>
+                            <circle class="ring-fill" cx="45" cy="45" r="38"></circle>
+                        </svg>
+                        <div class="ring-dot"></div>
+                    </div>
+                    <h3 class="loading-title" id="loadingStateText">Analyzing syntactic corpus...</h3>
+                    <p class="loading-desc">Extracting pragmatic nuances & running RoBERTa multi-label layers.</p>
+                </div>
+            </section>
+
+            <!-- ======================================================== -->
+            <!-- SECTION 3: RESULTS PANEL -->
+            <!-- ======================================================== -->
+            <section class="panel results-panel" id="resultsPanel" style="display: none;">
+
+                <div class="results-action-row">
+                    <button class="action-btn outline-btn" onclick="returnToInput()">
+                        <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><path d="M19 12H5M12 19l-7-7 7-7"/></svg>
+                        <span>Analyze Another Sentence</span>
+                    </button>
+                    <button class="action-btn secondary-btn" onclick="copyAnalysisSummary()">
+                        <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><rect x="9" y="9" width="13" height="13" rx="2" ry="2"/><path d="M5 15H4a2 2 0 0 1-2-2V4a2 2 0 0 1 2-2h9a2 2 0 0 1 2 2v1"/></svg>
+                        <span id="copyBtnLabel">Copy Report</span>
+                    </button>
+                </div>
+
+                <div class="results-grid">
+
+                    <!-- LEFT COLUMN: PRIMARY EMOTION & RADIAL CONFIDENCE GAUGE -->
+                    <div class="results-left">
+                        <div class="interactive-card centerpiece-card" id="centerpieceCard">
+                            <div class="centerpiece-halo" id="centerpieceHalo"></div>
+
+                            <div class="centerpiece-content">
+                                <div class="polarity-chip" id="polarityChip">
+                                    <span class="polarity-dot"></span>
+                                    <span id="polarityLabel">POSITIVE POLARITY</span>
+                                </div>
+
+                                <div class="primary-visual-wrapper">
+                                    <div class="visual-orb" id="visualOrb"></div>
+                                    <div class="visual-emoji" id="primaryEmoji">✨</div>
+                                </div>
+
+                                <span class="panel-meta text-center font-bold tracking-wider">PRIMARY DETECTED EMOTION</span>
+                                <h2 class="centerpiece-emotion" id="primaryEmotionName">Joy</h2>
+                                
+                                <div class="radial-gauge-wrapper">
+                                    <div class="gauge-center">
+                                        <span class="centerpiece-score" id="primaryScore">0%</span>
+                                        <span class="gauge-label">CONFIDENCE</span>
+                                    </div>
+                                </div>
+
+                                <p class="centerpiece-desc" id="primaryDescription">
+                                    Conveys delight, positive sentiment, and emotional warmth.
+                                </p>
+                            </div>
+                        </div>
+                    </div>
+
+                    <!-- RIGHT COLUMN: PRAGMATIC REASONING & DETAILED BREAKDOWN -->
+                    <div class="results-right">
+
+                        <!-- PRAGMATIC REASONING CARD (FOR INDIRECT SENTENCES) -->
+                        <div class="interactive-card pragmatic-card" id="pragmaticCard">
+                            <div class="card-header">
+                                <div class="header-tag">
+                                    <span class="pulse-dot-cyan"></span>
+                                    <span class="panel-meta">PRAGMATIC & INDIRECT REASONING</span>
+                                </div>
+                                <span class="indirect-badge" id="indirectBadge">Indirect Analysis</span>
+                            </div>
+
+                            <div class="pragmatic-body">
+                                <div class="pragmatic-notes-list" id="pragmaticNotes">
+                                    <!-- Dynamic Notes -->
+                                </div>
+
+                                <div class="diff-container">
+                                    <div class="diff-block">
+                                        <span class="diff-label">ORIGINAL INPUT</span>
+                                        <div class="diff-content original-diff" id="diffOriginal"></div>
+                                    </div>
+                                    <div class="diff-block">
+                                        <span class="diff-label">NORMALIZED CORPUS</span>
+                                        <div class="diff-content normalized-diff" id="diffNormalized"></div>
+                                    </div>
+                                </div>
+
+                                <div class="signals-block">
+                                    <span class="diff-label">EXTRACTED LINGUISTIC SIGNALS</span>
+                                    <div class="signals-list" id="signalsList">
+                                        <!-- Dynamic Signals -->
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+
+                        <!-- MULTI-LABEL EMOTION SPECTRUM CHART -->
+                        <div class="interactive-card chart-card">
+                            <div class="card-header">
+                                <div class="header-tag">
+                                    <span class="pulse-dot-purple"></span>
+                                    <span class="panel-meta">TOP MULTI-LABEL EMOTION SPECTRUM</span>
+                                </div>
+                                <span class="chart-sub-label">Calibrated Probability Distribution</span>
+                            </div>
+                            <div class="chart-wrapper" id="emotionsChartList">
+                                <!-- Dynamic rows -->
+                            </div>
+                        </div>
+
+                    </div>
+                </div>
+
+                <!-- PIPELINE STEPPER TRACKER -->
+                <div class="stepper-section">
+                    <span class="panel-meta text-center block mb-8">INFERENCE PIPELINE ARCHITECTURE</span>
+                    <div class="stepper-track">
+                        <div class="step-connector" id="stepConnectorLine"></div>
+                        <div class="step-node" id="node1">
+                            <div class="node-circle">1</div>
+                            <span class="node-title">Pragmatic Ingress</span>
+                            <span class="node-desc">Sarcasm & idiom parsing</span>
+                        </div>
+                        <div class="step-node" id="node2">
+                            <div class="node-circle">2</div>
+                            <span class="node-title">Corpus Normalizer</span>
+                            <span class="node-desc">Contractions & slang</span>
+                        </div>
+                        <div class="step-node" id="node3">
+                            <div class="node-circle">3</div>
+                            <span class="node-title">Transformer Layers</span>
+                            <span class="node-desc">RoBERTa self-attention</span>
+                        </div>
+                        <div class="step-node" id="node4">
+                            <div class="node-circle">4</div>
+                            <span class="node-title">Calibrated Thresholds</span>
+                            <span class="node-desc">Multi-label classification</span>
+                        </div>
+                    </div>
+                </div>
+
+            </section>
+
+        </main>
+    </div>
+
+    <!-- TOAST NOTIFICATION -->
+    <div class="toast-notification" id="toastNotification">Report copied to clipboard!</div>
+
+    <!-- SCRIPT FOR COMPOSITION & INTERACTION -->
+    <script>
+        // Preset examples structured by indirect categories
+        const PRESET_CATEGORIES = {
+            sarcasm: [
+                "Oh great, my flight is delayed again. Fantastic.",
+                "Thanks for nothing.",
+                "Brilliant, another problem to fix.",
+                "Just what I needed today. Wonderful.",
+                "Yeah right, like that's ever gonna happen."
+            ],
+            idioms: [
+                "you are good for nothing",
+                "you are killing it on stage!",
+                "I am dying of laughter, that was so funny",
+                "I am on cloud nine right now!",
+                "This cost an arm and a leg"
+            ],
+            subtle: [
+                "I guess that's fine, do whatever you want.",
+                "Why would you do this to me?",
+                "I don't know how I feel about this.",
+                "Whatever you say, if you say so.",
+                "I guess I will just manage on my own."
+            ],
+            direct: [
+                "I am soooo happy right now!",
+                "I HAAAAATE this sooo much!!!",
+                "I can't believe we actually won!",
+                "I am extremely nervous about tomorrow",
+                "Thank you so much for your support"
+            ]
+        };
+
+        // GoEmotions category definition to assign color themes
+        const THEME_MAPPING = {
+            // Theme Positive
+            admiration: { theme: "positive", emoji: "⭐", desc: "Expresses high respect, admiration, or warm approval." },
+            amusement: { theme: "positive", emoji: "😸", desc: "Reflects humor, playfulness, laughter, or lighthearted fun." },
+            approval: { theme: "positive", emoji: "👍", desc: "Indicates agreement, validation, or endorsement." },
+            caring: { theme: "positive", emoji: "🤗", desc: "Conveys active concern, warmth, empathy, and support." },
+            desire: { theme: "positive", emoji: "💫", desc: "Conveys craving, wishing, or passionate longing." },
+            excitement: { theme: "positive", emoji: "🚀", desc: "Radiates energetic enthusiasm and intense anticipation." },
+            gratitude: { theme: "positive", emoji: "🙏", desc: "Expresses deep appreciation, thankfulness, or gratitude." },
+            joy: { theme: "positive", emoji: "✨", desc: "Conveys delight, happiness, and supreme emotional well-being." },
+            love: { theme: "positive", emoji: "💖", desc: "Conveys deep affection, warmth, and strong attachment." },
+            optimism: { theme: "positive", emoji: "🌅", desc: "Expresses hopefulness and confidence in a positive future." },
+            pride: { theme: "positive", emoji: "👑", desc: "Conveys self-satisfaction, honorable achievement, or dignity." },
+            relief: { theme: "positive", emoji: "😌", desc: "Indicates a reassuring release from anxiety, tension, or fear." },
+
+            // Theme Negative
+            anger: { theme: "negative", emoji: "🔥", desc: "Indicates strong frustration, hostility, indignation, or rage." },
+            annoyance: { theme: "negative", emoji: "⚡", desc: "Expresses irritation, sarcasm, exasperation, or bother." },
+            disapproval: { theme: "negative", emoji: "👎", desc: "Conveys critical judgment, objection, or disagreement." },
+            disgust: { theme: "negative", emoji: "🤢", desc: "Reflects intense aversion, revulsion, or deep distaste." },
+
+            // Theme Melancholy
+            disappointment: { theme: "melancholy", emoji: "😔", desc: "Expresses sorrow or discouragement from unmet expectations." },
+            fear: { theme: "melancholy", emoji: "😨", desc: "Indicates dread, apprehension, panic, or perceived danger." },
+            grief: { theme: "melancholy", emoji: "💧", desc: "Conveys deep sorrow, mourning, anguish, or profound loss." },
+            nervousness: { theme: "melancholy", emoji: "😰", desc: "Conveys anxiety, tension, worry, or apprehension." },
+            sadness: { theme: "melancholy", emoji: "😢", desc: "Conveys dejection, sorrow, unhappiness, or gloom." },
+            remorse: { theme: "melancholy", emoji: "🥺", desc: "Expresses regret, self-reproach, guilt, or repentance." },
+            embarrassment: { theme: "melancholy", emoji: "😳", desc: "Conveys self-consciousness, shame, or social awkwardness." },
+
+            // Theme Surprise
+            confusion: { theme: "surprise", emoji: "🌀", desc: "Indicates uncertainty, perplexity, or lack of clarity." },
+            curiosity: { theme: "surprise", emoji: "👀", desc: "Expresses interest, inquisitiveness, or desire to explore." },
+            realization: { theme: "surprise", emoji: "💡", desc: "Indicates sudden epiphany, understanding, or discovery." },
+            surprise: { theme: "surprise", emoji: "😮", desc: "Conveys astonishment, shock, or unexpected wonder." },
+
+            // Theme Neutral
+            neutral: { theme: "neutral", emoji: "😐", desc: "Reflects objective, factual, and balanced textual expression." }
+        };
+
+        let currentCategory = "sarcasm";
+        let sessionHistory = [];
+        let lastAnalysisResult = null;
+
+        // Populate preset chips on page load
+        function renderPresets(category) {
+            const list = document.getElementById("presetsList");
+            list.innerHTML = "";
+            const items = PRESET_CATEGORIES[category] || [];
+            items.forEach(text => {
+                const btn = document.createElement("button");
+                btn.className = "preset-chip";
+                btn.textContent = text;
+                btn.onclick = () => applyPreset(text);
+                list.appendChild(btn);
+            });
+        }
+
+        function switchPresetCategory(category, tabBtn) {
+            currentCategory = category;
+            document.querySelectorAll(".preset-tab").forEach(tab => tab.classList.remove("active"));
+            tabBtn.classList.add("active");
+            renderPresets(category);
+        }
+
+        function updateCharCount() {
+            const textarea = document.getElementById("rawTextInput");
+            const counter = document.getElementById("charCounter");
+            const length = textarea.value.length;
+
+            counter.textContent = `${length} / 500`;
+            if (length >= 450) {
+                counter.style.color = "var(--accent-red)";
+            } else if (length >= 350) {
+                counter.style.color = "var(--accent-orange, #f97316)";
+            } else {
+                counter.style.color = "var(--text-secondary)";
+            }
+        }
+
+        function applyPreset(text) {
+            const textarea = document.getElementById("rawTextInput");
+            textarea.value = text;
+            updateCharCount();
+            executeInference();
+        }
+
+        function resetEditor() {
+            const textarea = document.getElementById("rawTextInput");
+            textarea.value = "";
+            updateCharCount();
+            textarea.focus();
+        }
+
+        function returnToInput() {
+            const body = document.body;
+            const inputPanel = document.getElementById("inputPanel");
+            const resultsPanel = document.getElementById("resultsPanel");
+
+            window.scrollTo({ top: 0, behavior: "smooth" });
+
+            resultsPanel.classList.add("fade-out-up");
+
+            setTimeout(() => {
+                resultsPanel.style.display = "none";
+                resultsPanel.classList.remove("fade-out-up");
+
+                inputPanel.style.display = "block";
+                inputPanel.classList.add("fade-in-up");
+
+                body.className = "state-input";
+                body.setAttribute("data-theme", "neutral");
+                updateAuroras("neutral");
+
+                setTimeout(() => {
+                    inputPanel.classList.remove("fade-in-up");
+                    document.getElementById("rawTextInput").focus();
+                }, 400);
+            }, 300);
+        }
+
+        function animateValue(element, start, end, duration) {
+            let startTimestamp = null;
+            const step = (timestamp) => {
+                if (!startTimestamp) startTimestamp = timestamp;
+                const progress = Math.min((timestamp - startTimestamp) / duration, 1);
+                const easedProgress = progress * (2 - progress);
+                const currentVal = Math.floor(easedProgress * (end - start) + start);
+                element.textContent = `${currentVal}%`;
+                if (progress < 1) {
+                    window.requestAnimationFrame(step);
+                } else {
+                    element.textContent = `${end}%`;
+                }
+            };
+            window.requestAnimationFrame(step);
+        }
+
+        function updateAuroras(theme) {
+            const aurora1 = document.getElementById("aurora1");
+            const aurora2 = document.getElementById("aurora2");
+
+            let color1 = "rgba(168, 85, 247, 0.16)";
+            let color2 = "rgba(56, 189, 248, 0.10)";
+
+            if (theme === "positive") {
+                color1 = "rgba(52, 211, 153, 0.20)";
+                color2 = "rgba(251, 191, 36, 0.12)";
+            } else if (theme === "negative") {
+                color1 = "rgba(244, 63, 94, 0.22)";
+                color2 = "rgba(239, 68, 68, 0.12)";
+            } else if (theme === "melancholy") {
+                color1 = "rgba(99, 102, 241, 0.20)";
+                color2 = "rgba(59, 130, 246, 0.14)";
+            } else if (theme === "surprise") {
+                color1 = "rgba(6, 182, 212, 0.20)";
+                color2 = "rgba(168, 85, 247, 0.14)";
+            } else if (theme === "neutral") {
+                color1 = "rgba(148, 163, 184, 0.10)";
+                color2 = "rgba(71, 85, 105, 0.08)";
+            }
+
+            aurora1.style.background = `radial-gradient(circle, ${color1} 0%, transparent 70%)`;
+            aurora2.style.background = `radial-gradient(circle, ${color2} 0%, transparent 70%)`;
+        }
+
+        function copyAnalysisSummary() {
+            if (!lastAnalysisResult) return;
+            const res = lastAnalysisResult;
+            const text = `EmotionAI Analysis:\nSentence: "${res.original_text}"\nPrimary Emotion: ${res.emotion.toUpperCase()} (${res.confidence}%)\nPolarity: ${res.polarity}\nIndirect Signals: ${res.signals.join(', ') || 'Direct syntax'}\nPragmatic Insight: ${res.pragmatic_notes.join('; ') || 'Standard direct sentiment'}`;
+            navigator.clipboard.writeText(text).then(() => {
+                const toast = document.getElementById("toastNotification");
+                toast.classList.add("show");
+                setTimeout(() => toast.classList.remove("show"), 2500);
+            });
+        }
+
+        function addToHistory(item) {
+            sessionHistory.unshift(item);
+            if (sessionHistory.length > 5) sessionHistory.pop();
+
+            const container = document.getElementById("historyContainer");
+            const list = document.getElementById("historyList");
+            container.style.display = "block";
+            list.innerHTML = "";
+
+            sessionHistory.forEach(h => {
+                const chip = document.createElement("div");
+                chip.className = "history-chip";
+                const scheme = THEME_MAPPING[h.emotion] || THEME_MAPPING.neutral;
+                chip.innerHTML = `
+                    <span class="hist-emoji">${scheme.emoji}</span>
+                    <span class="hist-text">"${h.original_text.substring(0, 32)}${h.original_text.length > 32 ? '...' : ''}"</span>
+                    <span class="hist-badge ${h.polarity}">${h.emotion}</span>
+                `;
+                chip.onclick = () => {
+                    document.getElementById("rawTextInput").value = h.original_text;
+                    updateCharCount();
+                    executeInference();
+                };
+                list.appendChild(chip);
+            });
+        }
+
+        async function executeInference() {
+            const textarea = document.getElementById("rawTextInput");
+            const textValue = textarea.value.trim();
+
+            if (!textValue) {
+                alert("Please enter a sentence to evaluate.");
+                textarea.focus();
+                return;
+            }
+
+            const body = document.body;
+            const inputPanel = document.getElementById("inputPanel");
+            const loadingPanel = document.getElementById("loadingPanel");
+            const resultsPanel = document.getElementById("resultsPanel");
+            const loadingText = document.getElementById("loadingStateText");
+
+            // Transition: Input -> Loading
+            inputPanel.classList.add("fade-out-up");
+
+            setTimeout(() => {
+                inputPanel.style.display = "none";
+                inputPanel.classList.remove("fade-out-up");
+
+                loadingPanel.style.display = "flex";
+                loadingPanel.classList.add("fade-in-up");
+                body.className = "state-loading";
+            }, 300);
+
+            const phrases = [
+                "Sanitizing linguistic corpus...",
+                "Detecting sarcasm & figurative patterns...",
+                "Calculating RoBERTa attention coordinates...",
+                "Evaluating multi-label confidence spectrum...",
+                "Applying calibrated pragmatic heuristics..."
+            ];
+            let phraseIdx = 0;
+            const phraseInterval = setInterval(() => {
+                phraseIdx = (phraseIdx + 1) % phrases.length;
+                loadingText.textContent = phrases[phraseIdx];
+            }, 550);
+
+            const nodes = ["node1", "node2", "node3", "node4"];
+            nodes.forEach(id => document.getElementById(id).className = "step-node");
+            document.getElementById("stepConnectorLine").style.width = "0%";
+
+            try {
+                const response = await fetch("/predict", {
+                    method: "POST",
+                    headers: { "Content-Type": "application/json" },
+                    body: JSON.stringify({ text: textValue })
+                });
+
+                if (!response.ok) {
+                    const err = await response.json();
+                    throw new Error(err.error || "Prediction request failed.");
+                }
+
+                const data = await response.json();
+                lastAnalysisResult = data;
+                addToHistory(data);
+
+                const primaryEmotion = data.emotion;
+                const scheme = THEME_MAPPING[primaryEmotion] || THEME_MAPPING.neutral;
+
+                // Theme assignment
+                body.setAttribute("data-theme", scheme.theme);
+                document.getElementById("centerpieceCard").setAttribute("data-theme", scheme.theme);
+                updateAuroras(scheme.theme);
+
+                // Polarity badge
+                const polarityLabel = document.getElementById("polarityLabel");
+                polarityLabel.textContent = `${data.polarity.toUpperCase()} SENTIMENT`;
+
+                // Primary Emotion Display
+                document.getElementById("primaryEmotionName").textContent = primaryEmotion.toUpperCase();
+                document.getElementById("primaryDescription").textContent = scheme.desc;
+                document.getElementById("primaryEmoji").textContent = scheme.emoji;
+
+                // Pragmatic Reasoning section
+                const indirectBadge = document.getElementById("indirectBadge");
+                if (data.is_indirect) {
+                    indirectBadge.textContent = "Indirect Nuance Detected";
+                    indirectBadge.className = "indirect-badge active-indirect";
+                } else {
+                    indirectBadge.textContent = "Direct Expression";
+                    indirectBadge.className = "indirect-badge direct-badge";
+                }
+
+                const pragmaticNotes = document.getElementById("pragmaticNotes");
+                pragmaticNotes.innerHTML = "";
+                if (data.pragmatic_notes && data.pragmatic_notes.length > 0) {
+                    data.pragmatic_notes.forEach(note => {
+                        pragmaticNotes.insertAdjacentHTML("beforeend", `
+                            <div class="pragmatic-note-item">
+                                <span class="note-icon">💡</span>
+                                <span class="note-text">${note}</span>
+                            </div>
+                        `);
+                    });
+                } else {
+                    pragmaticNotes.insertAdjacentHTML("beforeend", `
+                        <div class="pragmatic-note-item">
+                            <span class="note-icon">✓</span>
+                            <span class="note-text">Semantic analysis matches direct surface structure without figurative ambiguity.</span>
+                        </div>
+                    `);
+                }
+
+                // Populate text diff
+                document.getElementById("diffOriginal").textContent = `"${data.original_text}"`;
+                document.getElementById("diffNormalized").textContent = `"${data.normalized_text}"`;
+
+                // Signals List
+                const signalsList = document.getElementById("signalsList");
+                signalsList.innerHTML = "";
+                if (data.signals && data.signals.length > 0) {
+                    data.signals.forEach(sig => {
+                        signalsList.insertAdjacentHTML("beforeend", `<span class="signal-tag"><span class="signal-dot"></span>${sig}</span>`);
+                    });
+                } else {
+                    signalsList.insertAdjacentHTML("beforeend", `<span class="signal-tag normal-tag"><span class="signal-dot"></span>Standard Direct Syntax</span>`);
+                }
+
+                // Spectrum Chart rows
+                const chartWrapper = document.getElementById("emotionsChartList");
+                chartWrapper.innerHTML = "";
+
+                const spectrumItems = data.spectrum || data.emotions;
+                spectrumItems.forEach((item, index) => {
+                    const itemScheme = THEME_MAPPING[item.emotion] || THEME_MAPPING.neutral;
+                    const isPrimary = index === 0;
+
+                    const rowHTML = `
+                        <div class="chart-row ${isPrimary ? 'primary-row' : ''}">
+                            <div class="row-label">
+                                <span class="row-emoji">${itemScheme.emoji}</span>
+                                <span class="row-name">${item.emotion}</span>
+                            </div>
+                            <div class="progress-bar">
+                                <div class="progress-fill fill-${itemScheme.theme}" style="width: 0%;" id="fillBar_${index}"></div>
+                            </div>
+                            <span class="row-val" id="valSpan_${index}">0%</span>
+                        </div>
+                    `;
+                    chartWrapper.insertAdjacentHTML("beforeend", rowHTML);
+                });
+
+                // Stepper Visuals
+                const runStepper = () => {
+                    return new Promise((resolve) => {
+                        const line = document.getElementById("stepConnectorLine");
+                        setTimeout(() => { document.getElementById("node1").classList.add("active"); line.style.width = "33%"; }, 80);
+                        setTimeout(() => { document.getElementById("node2").classList.add("active"); line.style.width = "66%"; }, 280);
+                        setTimeout(() => { document.getElementById("node3").classList.add("active"); line.style.width = "100%"; }, 480);
+                        setTimeout(() => { document.getElementById("node4").classList.add("active"); resolve(); }, 680);
+                    });
+                };
+
+                await runStepper();
+
+                // Loading -> Results Transition
+                clearInterval(phraseInterval);
+                loadingPanel.classList.add("fade-out-up");
+
+                setTimeout(() => {
+                    loadingPanel.style.display = "none";
+                    loadingPanel.classList.remove("fade-out-up");
+
+                    resultsPanel.style.display = "block";
+                    resultsPanel.classList.add("fade-in-up");
+                    body.className = "state-result";
+
+                    // Animate primary score
+                    animateValue(document.getElementById("primaryScore"), 0, Math.round(data.confidence), 900);
+
+                    // Animate secondary spectrum bars
+                    spectrumItems.forEach((item, index) => {
+                        setTimeout(() => {
+                            const fill = document.getElementById(`fillBar_${index}`);
+                            const val = document.getElementById(`valSpan_${index}`);
+                            const target = Math.round(item.confidence);
+
+                            if (fill) fill.style.width = `${target}%`;
+                            if (val) animateValue(val, 0, target, 750);
+                        }, index * 90);
+                    });
+
+                    setTimeout(() => {
+                        resultsPanel.classList.remove("fade-in-up");
+                    }, 400);
+
+                }, 300);
+
+            } catch (err) {
+                clearInterval(phraseInterval);
+                console.error(err);
+                alert(err.message || "Failed to analyze text. Please ensure the backend is running.");
+
+                loadingPanel.style.display = "none";
+                inputPanel.style.display = "block";
+                body.className = "state-input";
+            }
+        }
+
+        // Initialize presets on load
+        window.addEventListener("DOMContentLoaded", () => {
+            renderPresets("sarcasm");
+        });
+    </script>
+</body>
+
+</html>
