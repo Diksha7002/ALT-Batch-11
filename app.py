@@ -12,12 +12,18 @@ app = Flask(__name__)
 # LOAD MODEL & CONFIGURATION
 # ============================================================
 
-MODEL_FOLDER = "./emotion_model"
+HF_MODEL_ID = os.environ.get("HF_MODEL_ID", "Diksha7002/emotion-detection")
+LOCAL_MODEL_FOLDER = "./emotion_model"
 NUM_CLASSES = 28
 
-print("\nLoading emotion detection model...")
-tokenizer = AutoTokenizer.from_pretrained(MODEL_FOLDER)
-model = AutoModelForSequenceClassification.from_pretrained(MODEL_FOLDER)
+# Check if weights file exists locally; if not, load directly from Hugging Face Hub
+has_local_weights = os.path.exists(os.path.join(LOCAL_MODEL_FOLDER, "model.safetensors")) or os.path.exists(os.path.join(LOCAL_MODEL_FOLDER, "pytorch_model.bin"))
+
+MODEL_SOURCE = LOCAL_MODEL_FOLDER if has_local_weights else HF_MODEL_ID
+
+print(f"\nLoading emotion detection model from: {MODEL_SOURCE}...")
+tokenizer = AutoTokenizer.from_pretrained(MODEL_SOURCE)
+model = AutoModelForSequenceClassification.from_pretrained(MODEL_SOURCE)
 model.eval()
 print("Model loaded successfully!")
 
@@ -28,13 +34,14 @@ name2id = {name: i for i, name in enumerate(emotion_names)}
 print(f"Mapped {len(emotion_names)} classes from model config.")
 
 # Load per-class optimal thresholds
-threshold_path = os.path.join(MODEL_FOLDER, "thresholds.json")
+threshold_path = os.path.join(LOCAL_MODEL_FOLDER, "thresholds.json")
 if os.path.exists(threshold_path):
     with open(threshold_path, "r") as f:
         thresholds = json.load(f)
     print("Tuned class thresholds loaded successfully.")
 else:
     thresholds = [0.30] * NUM_CLASSES
+
 
 # Polarity clustering for visual analytics
 EMOTION_POLARITIES = {
